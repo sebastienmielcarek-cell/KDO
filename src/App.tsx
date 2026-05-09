@@ -168,64 +168,71 @@ export default function App() {
               </div>
             </div>
 
-            {/* Puzzle Board */}
-            <div 
-              className="grid gap-1 bg-slate-100 p-2 rounded-2xl border-[6px] border-slate-900 shadow-2xl relative overflow-hidden"
-              style={{
-                display: 'grid',
-                gridTemplateColumns: `repeat(${PUZZLE_COLS}, 1fr)`,
-                width: 'min(90vw, 380px)',
-                aspectRatio: `${PUZZLE_COLS} / ${PUZZLE_ROWS}`
-              }}
-            >
-              {Array.from({ length: TOTAL_PIECES }).map((_, i) => {
-                const pieceInSlot = pieces.find(p => p.currentPos === i);
-                return (
-                  <div 
-                    key={`slot-${i}`}
-                    onClick={() => handleSlotClick(i)}
-                    className="w-full h-full bg-white/40 rounded-sm border border-dashed border-slate-200 relative overflow-hidden transition hover:bg-white/60 cursor-pointer"
-                  >
-                    {showHint && !pieceInSlot && (
-                       <div className="absolute inset-0 opacity-20 bg-cover bg-no-repeat grayscale"
-                          style={{
-                            backgroundImage: `url(${imageUrl})`,
-                            backgroundSize: `${PUZZLE_COLS * 100}% ${PUZZLE_ROWS * 100}%`,
-                            backgroundPosition: `${(i % PUZZLE_COLS) * (100 / (PUZZLE_COLS - 1))}% ${Math.floor(i / PUZZLE_COLS) * (100 / (PUZZLE_ROWS - 1))}%`
-                          }}
-                       />
-                    )}
-                    {pieceInSlot && (
-                      <PuzzlePieceComponent 
-                        piece={pieceInSlot} 
-                        imageUrl={imageUrl} 
-                        isSelected={selectedPieceId === pieceInSlot.id}
-                        onClick={() => handlePieceClick(pieceInSlot.id)}
-                      />
+            {/* Desktop Side-by-Side Layout */}
+            <div className="flex flex-col lg:flex-row gap-12 items-start justify-center w-full max-w-6xl px-4 mt-4">
+              {/* Left Column: Puzzle Board */}
+              <div className="flex flex-col items-center flex-1">
+                <div 
+                  className="grid gap-1 bg-slate-100 p-2 rounded-2xl border-[6px] border-slate-900 shadow-2xl relative overflow-hidden"
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: `repeat(${PUZZLE_COLS}, 1fr)`,
+                    width: 'min(90vw, 380px)',
+                    aspectRatio: `${PUZZLE_COLS} / ${PUZZLE_ROWS}`
+                  }}
+                >
+                  {Array.from({ length: TOTAL_PIECES }).map((_, i) => {
+                    const pieceInSlot = pieces.find(p => p.currentPos === i);
+                    return (
+                      <div 
+                        key={`slot-${i}`}
+                        onClick={() => handleSlotClick(i)}
+                        className="w-full h-full bg-white/40 rounded-sm border border-dashed border-slate-200 relative overflow-hidden transition hover:bg-white/60 cursor-pointer"
+                      >
+                        {showHint && !pieceInSlot && (
+                          <div className="absolute inset-0 opacity-20 bg-cover bg-no-repeat grayscale"
+                              style={{
+                                backgroundImage: `url(${imageUrl})`,
+                                backgroundSize: `${PUZZLE_COLS * 100}% ${PUZZLE_ROWS * 100}%`,
+                                backgroundPosition: `${(i % PUZZLE_COLS) * (100 / (PUZZLE_COLS - 1))}% ${Math.floor(i / PUZZLE_COLS) * (100 / (PUZZLE_ROWS - 1))}%`
+                              }}
+                          />
+                        )}
+                        {pieceInSlot && (
+                          <PuzzlePieceComponent 
+                            piece={pieceInSlot} 
+                            imageUrl={imageUrl} 
+                            isSelected={selectedPieceId === pieceInSlot.id}
+                            onClick={() => handlePieceClick(pieceInSlot.id)}
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Right Column: Pieces Pool */}
+              <div className="flex-1 w-full flex flex-col items-center">
+                <div className="w-full max-w-lg bg-white/80 backdrop-blur-xl p-8 rounded-[40px] border border-white shadow-2xl min-h-[300px]">
+                  <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[.4em] text-center mb-8">Pièces à placer</h3>
+                  <div className="flex flex-wrap justify-center gap-4">
+                    {pieces.filter(p => p.currentPos === null).map(p => (
+                      <div key={`pool-${p.id}`} className="w-24 h-32">
+                        <PuzzlePieceComponent 
+                            piece={p} 
+                            imageUrl={imageUrl} 
+                            isSelected={selectedPieceId === p.id}
+                            onClick={() => handlePieceClick(p.id)}
+                          />
+                      </div>
+                    ))}
+                    {pieces.filter(p => p.currentPos === null).length === 0 && !isGameWon && (
+                      <p className="text-slate-400 italic text-sm py-4 text-center w-full">Toutes les pièces sont placées ! Vérifiez l'ordre...</p>
                     )}
                   </div>
-                );
-              })}
-            </div>
-
-            {/* Pieces Pool */}
-            <div className="mt-12 w-full max-w-lg bg-white/80 backdrop-blur-xl p-8 rounded-[40px] border border-white shadow-2xl">
-               <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[.4em] text-center mb-8">Pièces à placer</h3>
-               <div className="flex flex-wrap justify-center gap-4">
-                 {pieces.filter(p => p.currentPos === null).map(p => (
-                   <div key={`pool-${p.id}`} className="w-20 h-24 md:w-24 md:h-32">
-                     <PuzzlePieceComponent 
-                        piece={p} 
-                        imageUrl={imageUrl} 
-                        isSelected={selectedPieceId === p.id}
-                        onClick={() => handlePieceClick(p.id)}
-                      />
-                   </div>
-                 ))}
-                 {pieces.filter(p => p.currentPos === null).length === 0 && !isGameWon && (
-                   <p className="text-slate-400 italic text-sm py-4">Toutes les pièces sont placées ! Vérifiez l'ordre...</p>
-                 )}
-               </div>
+                </div>
+              </div>
             </div>
 
             <div className="mt-10 flex gap-10">
@@ -287,11 +294,17 @@ export default function App() {
               <h2 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight">C'est parti !</h2>
             </div>
 
-            <div className="w-full max-w-[520px] bg-white rounded-[40px] overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.35)] border border-white flex flex-col print:shadow-none print:border-slate-300">
+              <div className="w-full max-w-[520px] bg-white rounded-[40px] overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.35)] border border-white flex flex-col print:shadow-none print:border-slate-300">
                <div className="bg-red-600 text-white p-10 pb-12">
                   <div className="flex justify-between items-center mb-8">
                     <div className="flex items-center gap-4">
-                      <Plane className="rotate-45 drop-shadow-lg" size={28} />
+                      <motion.div
+                        initial={{ x: -20, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
+                      >
+                        <Plane className="rotate-45 drop-shadow-lg" size={28} />
+                      </motion.div>
                       <span className="font-black italic text-3xl tracking-tighter">SÉJOUR EXPRESS</span>
                     </div>
                     <span className="text-[10px] font-black bg-white text-red-600 px-4 py-1.5 rounded-lg tracking-[.3em] shadow-sm">BOARDING PASS</span>
@@ -306,48 +319,69 @@ export default function App() {
                       <p className="text-2xl font-black text-slate-900">Muriel & Ingrid</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-2">Vol VIP</p>
-                      <p className="text-3xl font-black text-red-600 tracking-tighter italic">ITA-2024</p>
+                      <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-2">Année</p>
+                      <p className="text-3xl font-black text-red-600 tracking-tighter italic">2026</p>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between gap-6 mb-12 bg-slate-50/50 p-8 rounded-[36px] border border-slate-100">
                     <div className="text-center group">
-                      <p className="text-3xl font-black text-slate-900 cursor-default">MAISON</p>
-                      <p className="text-[10px] text-slate-400 font-black tracking-[.3em] mt-2">DÉPART</p>
+                      <p className="text-3xl font-black text-slate-900 cursor-default">DÉPART</p>
+                      <p className="text-[10px] text-slate-400 font-black tracking-[.3em] mt-2">MAISON</p>
                     </div>
                     
                     <div className="flex-1 flex flex-col items-center gap-2 relative">
                       <div className="w-full border-t-2 border-dashed border-slate-300 relative">
                         <motion.div 
-                          animate={{ x: [0, 10, -10, 0] }}
-                          transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-                          className="absolute -top-4 left-1/2 -translate-x-1/2 bg-slate-50 px-4 py-1"
+                          animate={{ 
+                            x: [0, 150], 
+                            y: [0, -40],
+                            opacity: [1, 0]
+                          }}
+                          transition={{ 
+                            repeat: Infinity, 
+                            duration: 3, 
+                            ease: "easeIn" 
+                          }}
+                          className="absolute -top-4 left-0 bg-slate-50 px-4 py-1"
                         >
                           <Plane size={24} className="text-red-600 fill-red-600" />
                         </motion.div>
                       </div>
-                      <span className="text-[9px] font-black text-slate-300 uppercase tracking-[.4em] mt-2">VOL DIRECT</span>
+                      <span className="text-[9px] font-black text-slate-300 uppercase tracking-[.4em] mt-2">DÉCOLLAGE</span>
                     </div>
 
                     <div className="text-center">
                       <p className="text-3xl font-black text-red-600 drop-shadow-sm">ITALIE</p>
-                      <p className="text-[10px] text-slate-400 font-black tracking-[.3em] mt-2">ARRIVÉE</p>
+                      <p className="text-[10px] text-slate-400 font-black tracking-[.3em] mt-2">DESTINATION</p>
                     </div>
+                  </div>
+
+                  <div className="text-center mb-10">
+                    <motion.div
+                      initial={{ scale: 0.9, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ delay: 0.5, duration: 1 }}
+                      className="bg-red-50 p-6 rounded-[24px] border border-red-100"
+                    >
+                      <p className="text-red-600 font-black text-xl mb-1 uppercase tracking-tighter italic">CADEAU CONFIRMÉ</p>
+                      <p className="text-slate-900 font-black text-2xl">UNE NUIT EN ITALIE</p>
+                      <p className="text-slate-500 font-bold text-sm mt-2 uppercase tracking-wide">Lieu presque défini • Date à convenir</p>
+                    </motion.div>
                   </div>
 
                   <div className="grid grid-cols-3 gap-8 text-center mb-14">
                     <div>
-                      <p className="text-[10px] text-slate-400 font-black uppercase mb-1.5 tracking-wider">Classe</p>
-                      <p className="font-black text-slate-900">PREMIUM</p>
+                      <p className="text-[10px] text-slate-400 font-black uppercase mb-1.5 tracking-wider">Période</p>
+                      <p className="font-black text-slate-900">MAI / JUIN</p>
                     </div>
                     <div>
                       <p className="text-[10px] text-slate-400 font-black uppercase mb-1.5 tracking-wider">Départ</p>
-                      <p className="font-black text-red-600">IMMÉDIAT</p>
+                      <p className="font-black text-red-600">A CONVENIR</p>
                     </div>
                     <div>
                       <p className="text-[10px] text-slate-400 font-black uppercase mb-1.5 tracking-wider">Porte</p>
-                      <p className="font-black text-slate-900">COEUR</p>
+                      <p className="font-black text-slate-900">DÉCOMPRESSION</p>
                     </div>
                   </div>
 
@@ -358,11 +392,11 @@ export default function App() {
                   </div>
 
                   <div className="flex flex-col items-center">
-                    <div className="font-barcode text-7xl md:text-8xl leading-none text-slate-900 mb-6 select-none">
-                      ITALY 2024 GIFT
+                    <div className="font-barcode text-7xl md:text-8xl leading-none text-slate-900 mb-6 select-none uppercase">
+                      ITALY 2026 GIFT
                     </div>
                     <p className="text-[13px] text-slate-500 font-medium italic text-center max-w-[280px] leading-relaxed">
-                      Ce bon est valable pour un voyage inoubliable en amoureux de la vie en Italie.
+                      Ce bon est valable pour une nuit inoubliable en Italie pour célébrer deux mamans formidables.
                     </p>
                   </div>
                </div>
